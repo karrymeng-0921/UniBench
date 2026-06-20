@@ -9,7 +9,6 @@ from transformers import CLIPModel, CLIPProcessor
 from model_Multitask3 import (
     AdvancedClassifierHead_CLIP,
     MLPHead,
-    MLPHead_binary,
     MultiHeadCLIPClassifier,
     Multi_MultiC_GramCluster_v2
 )
