@@ -7,7 +7,6 @@ from tqdm.auto import tqdm
 import inspect
 from copy import deepcopy
 import torchvision.transforms as T
-from util_unlearn import ckpt_set
 import json
 import socket
 import scipy.sparse
