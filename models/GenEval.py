@@ -227,8 +227,7 @@ def main():
 
         head_dict = {
             "object": AdvancedClassifierHead_CLIP(input_dim=512, hidden_dim=512, num_classes=10),
-            "style": Multi_MultiC_GramCluster_v2(input_dim=512, hidden_dim=512, num_classes=20,
-                                                 dropout_rate=0.3, gram_reduce_dim=512, cluster_factor=3),
+            "style": StyleAttentionMLPHead(input_dim=512, hidden_dim=512, num_classes=20, dropout_rate=0.3),
             "nsfw": MLPHead(input_dim=512, hidden_dim=256, num_classes=7, dropout=0.3),
         }
 
