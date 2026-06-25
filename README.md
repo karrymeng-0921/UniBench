@@ -41,6 +41,13 @@ python evaluate/evaluate_unlearn.py --base-dir '/path/to/your/unlearn_images_roo
 - `--weight-dir`: Path to the classifier head weights, which can be your own trained weights (obtained after running `GenEval.py`) or the pre-trained weights we provide (our weights are located in the `Weights` directory).
 - `--batch-size`: Batch size for evaluation.
 
+### Prompts Data
+We provide the benchmark evaluation prompts in the `dataset_prompts` directory:
+* `HETD_prompts.json`: Contains the comprehensive text prompts derived from our Hybrid Evaluation Tri-Task Dataset (HETD), spanning across Object, Style, and safety tasks.
+* `Unlearn_prompts.json`: Contains the baseline/target prompts specifically utilized to test standard concept unlearning performance.
+
+> 💡 **Note**: If you want to use these JSON prompts for the image generation script below, you can parse them or convert them into the required CSV format (`prompt`, `evaluation_seed`, `case_number`).
+
 ## Generation Images
 To use `evaluate/generate-images.py` you would need a CSV file with columns prompt, evaluation_seed, and case_number. You can use the following example to generate images with the standard diffusion model (e.g., SD-1.4, SD-1.5, SD-2.0 or SD-2.1).:
 ```bash
