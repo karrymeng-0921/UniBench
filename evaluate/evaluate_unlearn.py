@@ -18,10 +18,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Task heads definition (same as training)
 HEADS = {
     "object_church": AdvancedClassifierHead_CLIP(input_dim=512, hidden_dim=512, num_classes=10),
-    "style_vangogh": Multi_MultiC_GramCluster_v2(
-        input_dim=512, hidden_dim=512, num_classes=20,
-        dropout_rate=0.3, gram_reduce_dim=512, cluster_factor=3
-    ),
+    "style_vangogh": StyleAttentionMLPHead(input_dim=512, hidden_dim=512, num_classes=20, dropout_rate=0.3),
     "nsfw": MLPHead(input_dim=512, hidden_dim=256, num_classes=7, dropout=0.3),
 }
 
