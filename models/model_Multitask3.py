@@ -157,35 +157,29 @@ def gram_matrix(x):
     return gram / D
 
 
-class Multi_MultiC_GramCluster_v2(nn.Module):
+class StyleAttentionMLPHead(nn.Module):
     def __init__(
         self,
         input_dim=512,
         hidden_dim=512,
-        num_classes=10,
-        dropout_rate=0.3,
-        gram_reduce_dim=512,
-        cluster_factor=2
+        num_classes=20,
+        dropout_rate=0.3
     ):
         super().__init__()
-
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.num_classes = num_classes
         self.dropout_rate = dropout_rate
-        self.gram_reduce_dim = gram_reduce_dim
-        self.cluster_factor = cluster_factor
-
-        # Backbone channel attention mechanism:
-        # learns feature importance weights
+        
+        # Channel Attention
         self.attn = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, input_dim),
-            nn.Sigmoid()  # outputs attention weights in [0, 1]
+            nn.Sigmoid()
         )
 
-        # Feed-forward network for nonlinear transformation
+        # Feed Forward Network
         self.feedforward = nn.Sequential(
             nn.LayerNorm(input_dim),
             nn.Linear(input_dim, input_dim * 4),
@@ -194,7 +188,7 @@ class Multi_MultiC_GramCluster_v2(nn.Module):
             nn.Linear(input_dim * 4, input_dim)
         )
 
-        # Intermediate feature processing layer
+        # MLP Block 1
         self.mlp1 = nn.Sequential(
             nn.LayerNorm(input_dim),
             nn.Linear(input_dim, hidden_dim),
@@ -202,94 +196,44 @@ class Multi_MultiC_GramCluster_v2(nn.Module):
             nn.Dropout(dropout_rate)
         )
 
-        # Deeper feature extraction network
+        # MLP Block 2
         self.mlp2 = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
             nn.GELU(),
             nn.Dropout(dropout_rate),
+
             nn.Linear(hidden_dim, hidden_dim // 2),
             nn.GELU(),
             nn.Dropout(dropout_rate)
         )
 
-        self.output = nn.Linear(hidden_dim // 2, num_classes)
-
-        # Gram matrix dimensionality reduction
-        self.gram_reduce = nn.Linear(input_dim * input_dim, gram_reduce_dim)
-
-        # Fuse backbone features and Gram-cluster features
-        self.gram_mlp = nn.Sequential(
-            nn.Linear(input_dim + gram_reduce_dim, hidden_dim),
-            nn.GELU(),
-            nn.Dropout(dropout_rate)
+        # Classification Layer
+        self.output = nn.Linear(
+            hidden_dim // 2,
+            num_classes
         )
 
-        # Cluster centers (registered as buffer)
-        self.register_buffer(
-            "cluster_centers",
-            torch.zeros(num_classes * cluster_factor, gram_reduce_dim)
-        )
-        self.cluster_initialized = False
+    def forward(self, x_embed):
+        """
+        Args:
+            x_embed: [B, input_dim]
+                     CLIP image embeddings
 
-    def compute_gram(self, x):
+        Returns:
+            logits: [B, num_classes]
         """
-        x: [B, C, H, W]
-        """
-        B, C, H, W = x.shape
-        x_flat = x.view(B, C, H * W)
-        G = torch.bmm(x_flat, x_flat.transpose(1, 2)) / (H * W)
-        G_flat = G.view(B, C * C)
-        G_red = self.gram_reduce(G_flat)
-        return G_red
-
-    def initialize_clusters(self, gram_features):
-        """
-        gram_features: [N, gram_reduce_dim]
-        """
-        k = self.num_classes * self.cluster_factor
-        kmeans = KMeans(n_clusters=k, random_state=42).fit(
-            gram_features.cpu().numpy()
-        )
-
-        centers = torch.tensor(
-            kmeans.cluster_centers_,
-            device=gram_features.device,
-            dtype=gram_features.dtype
-        )
-        self.cluster_centers.copy_(centers)
-        self.cluster_initialized = True
-
-    def forward(self, x_embed, x_image=None, use_gram=True):
-        """
-        x_embed: [B, input_dim] backbone embeddings
-        x_image: [B, C, H, W] original images (for Gram extraction only)
-        """
-        # Channel attention: feature × attention weight
+        # Channel Attention
         x_attn = x_embed * self.attn(x_embed)
+        # Residual FeedForward
         x_ffn = self.feedforward(x_attn)
-        x_main = x_attn + x_ffn  # residual connection
-
-        if use_gram and x_image is not None:
-            gram_feat = self.compute_gram(x_image)
-
-            if not self.cluster_initialized:
-                self.initialize_clusters(gram_feat)
-
-            # Find nearest cluster center
-            dist = torch.cdist(gram_feat, self.cluster_centers)
-            nearest_idx = dist.argmin(dim=1)
-            cluster_feat = self.cluster_centers[nearest_idx]
-
-            # Feature fusion
-            x_fused = torch.cat([x_main, cluster_feat], dim=1)
-            x_h = self.gram_mlp(x_fused)
-        else:
-            x_h = x_main
-
-        h = self.mlp1(x_h)
-        h = h + x_h
+        x_main = x_attn + x_ffn
+        # MLP Block 1
+        h = self.mlp1(x_main)
+        # Residual Connection
+        h = h + x_main
+        # MLP Block 2
         h = self.mlp2(h)
-
+        # Classification
         logits = self.output(h)
         return logits
 
