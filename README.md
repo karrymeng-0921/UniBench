@@ -46,7 +46,7 @@ We provide the benchmark evaluation prompts in the `dataset_prompts` directory:
 * `HETD_prompts.json`: Contains the comprehensive text prompts derived from our Hybrid Evaluation Tri-Task Dataset (HETD), spanning across Object, Style, and safety tasks.
 * `Unlearn_prompts/`: A directory containing task-specific baseline/target prompts in ready-to-use CSV format.
   * `Church_unlearn_prompts.csv`: Evaluation prompts for the Object-church task.
-  * `Nudity_unlearn_prompts.csv`: Evaluation prompts for the safety (NSFW) task.
+  * `Nudity_unlearn_prompts.csv`: Evaluation prompts for the NSFW-nudity task.
   * `Vangogh_unlearn_prompts.csv`: Evaluation prompts for the Style-vangogh task.
   * `Parachute_unlearn_prompts.csv`: Evaluation prompts for the additional Object-parachute task.
 
