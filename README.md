@@ -44,9 +44,13 @@ python evaluate/evaluate_unlearn.py --base-dir '/path/to/your/unlearn_images_roo
 ### Prompts Data
 We provide the benchmark evaluation prompts in the `dataset_prompts` directory:
 * `HETD_prompts.json`: Contains the comprehensive text prompts derived from our Hybrid Evaluation Tri-Task Dataset (HETD), spanning across Object, Style, and safety tasks.
-* `Unlearn_prompts.json`: Contains the baseline/target prompts specifically utilized to test standard concept unlearning performance.
+* `Unlearn_prompts/`: A directory containing task-specific baseline/target prompts in ready-to-use CSV format.
+  * `Church_unlearn_prompts.csv`: Evaluation prompts for the Object-church task.
+  * `Nudity_unlearn_prompts.csv`: Evaluation prompts for the safety (NSFW) task.
+  * `Vangogh_unlearn_prompts.csv`: Evaluation prompts for the Style-vangogh task.
+  * `Parachute_unlearn_prompts.csv`: Evaluation prompts for the additional Object-parachute task.
 
-> 💡 **Note**: If you want to use these JSON prompts for the image generation script below, you can parse them or convert them into the required CSV format (`prompt`, `evaluation_seed`, `case_number`).
+> 💡 **Note**: The CSV files in `Unlearn_prompts/` can be directly fed into the image generation script below. However, since the comprehensive HETD dataset contains too many CSV files to be listed individually here, we only provide the core `HETD_prompts.json`. If you want to use these JSON prompts for the image generation script below, you can parse them or convert them into the required CSV format (`prompt`, `evaluation_seed`, `case_number`) first.
 
 ## Generation Images
 To use `evaluate/generate-images.py` you would need a CSV file with columns prompt, evaluation_seed, and case_number. You can use the following example to generate images with the standard diffusion model (e.g., SD-1.4, SD-1.5, SD-2.0 or SD-2.1).:
