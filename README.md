@@ -26,6 +26,7 @@ After installation, follow these instructions to train the GenEval:
 ```bash
 python models/GenEval.py --base-dir '/path/to/your/dataset_root' --results-dir '/path/to/your/save_root' --tasks object style nsfw --batch-size 32
 ```
+ **Note**: GenEval uses a unified evaluation architecture for all benchmark tasks. During training, however, the Object, Style, and NSFW evaluators are fine-tuned independently because each task has substantially different data distributions and learning objectives. Therefore, the released repository provides separate checkpoints for each task rather than a single shared model.
 
 ## Evaluate Guide
 You can evaluate common unlearning results with the provided script `evaluate_unlearn.py`:
