@@ -10,7 +10,7 @@ from model_Multitask3 import (
     AdvancedClassifierHead_CLIP,
     MLPHead,
     MultiHeadCLIPClassifier,
-    Multi_MultiC_GramCluster_v2
+    StyleAttentionMLPHead
 )
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
