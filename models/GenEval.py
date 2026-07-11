@@ -11,7 +11,7 @@ from model_Multitask3 import (
     AdvancedClassifierHead_CLIP,
     MLPHead,
     MultiHeadCLIPClassifier,
-    Multi_MultiC_GramCluster_v2
+   StyleAttentionMLPHead
 )
 from util import fix_seed
 from torch.optim.lr_scheduler import ReduceLROnPlateau
